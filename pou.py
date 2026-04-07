@@ -96,11 +96,19 @@ rawr = 1000
 action = False
 action_time = 0
 
-itemy_timer = pygame.USEREVENT + 1
-pygame.time.set_timer(itemy_timer, 1200)
+base_spawning_time = 1200
 
 wynik = 0
 wynik_zegar = 0
+
+
+spawn = wynik//5
+last_spawn = 0
+
+itemy_timer = pygame.USEREVENT + 1
+
+
+
 
 base_speed = 3
 current_speed = 0
@@ -108,7 +116,7 @@ game_aktive = False
 
 
 play_again_TF = 0
-
+szczekanie[4].play()
 # --- PĘTLA GŁÓWNA ---
 while True:
     for event in pygame.event.get():
@@ -123,11 +131,15 @@ while True:
                 play_again_TF += 1
                 wynik = 0
                 wynik_zegar = 0
+                base_spawning_time = 1200
+                pygame.time.set_timer(itemy_timer, base_spawning_time)
                 
-                # Opcjonalnie: tu możesz wyzerować wynik przy restarcie
+                
+                
         
         # Sterowanie klawiszami (tylko w grze)
         if game_aktive:
+
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_d: d_pressed = True
                 elif event.key == pygame.K_a: a_pressed = True
@@ -139,7 +151,7 @@ while True:
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_d: d_pressed = False
                 elif event.key == pygame.K_a: a_pressed = False
-            
+              
             # Timer itemków (tylko w grze)
             if event.type == itemy_timer:
                 losowy_index = randint(0, len(itemki)-1)
@@ -147,6 +159,9 @@ while True:
                 x_pos = randint(20, WIDTH-20)
                 new_rect = dany_item.get_rect(midbottom=(x_pos,-10))
                 aktywne_itemki.append({'obrazek':dany_item,'rect':new_rect, 'typ':losowy_index})
+                
+
+                    
 
     if game_aktive:
         # LOGIKA GRY
@@ -168,8 +183,22 @@ while True:
 
         if wynik_zegar == 6:
             wynik_zegar = 0
+        if wynik_zegar <= 0:
+            wynik_zegar = 0
 
         current_speed = base_speed + (wynik//5)
+        spawn = wynik//5
+        if spawn > last_spawn:
+            last_spawn = spawn
+            base_spawning_time = max(300,base_spawning_time - 300)
+            pygame.time.set_timer(itemy_timer, base_spawning_time)
+            
+        if spawn < last_spawn:
+            last_spawn = spawn
+            base_spawning_time = max(1200,base_spawning_time + 300)
+            pygame.time.set_timer(itemy_timer, base_spawning_time)
+            
+
 
         # RYSOWANIE GRY
         screen.blit(sciana, (-99,-140))
